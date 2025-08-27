@@ -1,27 +1,38 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
-export default function BillingDashboard() {
-  const [activeTab, setActiveTab] = useState('products');
+export default function ModernPOSDashboard() {
+  const [activeTab, setActiveTab] = useState('tables');
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(['Food', 'Drinks', 'Desserts']);
   const [tables, setTables] = useState([]);
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', image: null });
+  const [bills, setBills] = useState([]);
+  const [newProduct, setNewProduct] = useState({ 
+    name: '', 
+    price: '', 
+    category: '', 
+    image: null 
+  });
+  const [editingProduct, setEditingProduct] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [newCategory, setNewCategory] = useState('');
 
   // Load data from localStorage on component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedProducts = JSON.parse(localStorage.getItem('products')) || [];
       const savedTables = JSON.parse(localStorage.getItem('tables')) || [];
+      const savedBills = JSON.parse(localStorage.getItem('bills')) || [];
+      const savedCategories = JSON.parse(localStorage.getItem('categories')) || ['Food', 'Drinks', 'Desserts'];
       
-      // Add some sample products if none exist
+      // Add sample products if none exist
       if (savedProducts.length === 0) {
         const sampleProducts = [
-          { id: 1, name: 'Pizza Margherita', price: 12.99, image: '/api/placeholder/200/200' },
-          { id: 2, name: 'Caesar Salad', price: 8.99, image: '/api/placeholder/200/200' },
-          { id: 3, name: 'Burger & Fries', price: 10.99, image: '/api/placeholder/200/200' },
-          { id: 4, name: 'Coca Cola', price: 2.99, image: '/api/placeholder/200/200' },
-          { id: 5, name: 'Chocolate Cake', price: 6.99, image: '/api/placeholder/200/200' },
+          { id: 1, name: 'Pizza Margherita', price: 12.99, category: 'Food', image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiBmaWxsPSIjZjM2NTY1Ij48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmYzE3MyIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjgwIiByPSI2MCIgZmlsbD0iI2Y1ZjVmNSIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iNzAiIHI9IjEwIiBmaWxsPSIjZjM2NTY1Ii8+PGNpcmNsZSBjeD0iMTEwIiBjeT0iOTAiIHI9IjgiIGZpbGw9IiNmMzY1NjUiLz48Y2lyY2xlIGN4PSIxMzAiIGN5PSI3MCIgcj0iNyIgZmlsbD0iI2YzNjU2NSIvPjwvc3ZnPg==' },
+          { id: 2, name: 'Caesar Salad', price: 8.99, category: 'Food', image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiBmaWxsPSIjNDhjYjYzIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZmZmMCIvPjxyZWN0IHg9IjQwIiB5PSI3MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI2MCIgZmlsbD0iI2QxZjFiZSIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iMTAwIiByPSIxNSIgZmlsbD0iI2ZmYzE3MyIvPjxjaXJjbGUgY3g9IjEyMCIgY3k9IjEwMCIgcj0iMTIiIGZpbGw9IiM4YjY1MTMiLz48cmVjdCB4PSI2MCIgeT0iNTUiIHdpZHRoPSI4MCIgaGVpZ2h0PSIxMCIgZmlsbD0iIzhiNjUxMyIvPjwvc3ZnPg==' },
+          { id: 3, name: 'Burger & Fries', price: 10.99, category: 'Food', image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiBmaWxsPSIjOGI2NTEzIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZjhhZCIvPjxyZWN0IHg9IjQwIiB5PSI2MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzhkNmEzMCIvPjxyZWN0IHg9IjQwIiB5PSIxMDAiIHdpZHRoPSIxMjAiIGhlaWdodD0iMjAiIGZpbGw9IiNmZmMxNzMiLz48cmVjdCB4PSI0MCIgeT0iMTIwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjM2E1MjFlIi8+PHJlY3QgeD0iMjUiIHk9IjE1MCIgd2lkdGg9IjE1IiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmY3YTJhIi8+PHJlY3QgeD0iNTAiIHk9IjE1MCIgd2lkdGg9IjE1IiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmY3YTJhIi8+PHJlY3QgeD0iNzUiIHk9IjE1MCIgd2lkdGg9IjE1IiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmY3YTJhIi8+PHJlY3QgeD0iMTAwIiB5PSIxNTAiIHdpZHRoPSIxNSIgaGVpZ2h0PSI0MCIgZmlsbD0iI2ZmN2EyYSIvPjxyZWN0IHg9IjEyNSIgeT0iMTUwIiB3aWR0aD0iMTUiIGhlaWdodD0iNDAiIGZpbGw9IiNmZjdhMmEiLz48cmVjdCB4PSIxNTAiIHk9IjE1MCIgd2lkdGg9IjE1IiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmY3YTJhIi8+PHJlY3QgeD0iMTc1IiB5PSIxNTAiIHdpZHRoPSIxNSIgaGVpZ2h0PSI0MCIgZmlsbD0iI2ZmN2EyYSIvPjwvc3ZnPg==' },
+          { id: 4, name: 'Coca Cola', price: 2.99, category: 'Drinks', image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiBmaWxsPSIjZWMwYTAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzMzMzMzMyIvPjxyZWN0IHg9IjUwIiB5PSIzMCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxNDAiIGZpbGw9IiMzMzMzMzMiLz48cmVjdCB4PSI1NSIgeT0iMzUiIHdpZHRoPSI5MCIgaGVpZ2h0PSIxMzAiIGZpbGw9IiNmZmZmZmYiLz48cGF0aCBkPSJNNzAgNjAgQzg1IDUwIDEwNSA2MCAxMjAgNjAgQzEzNSA2MCAxNTAgNzAgMTM1IDgwIEMxMjAgOTAgMTA1IDkwIDkwIDkwIEM3NSA5MCA2NSA4MCA3MCA2MCBaIiBmaWxsPSIjZWMwYTAwIi8+PC9zdmc+' },
+          { id: 5, name: 'Chocolate Cake', price: 6.99, category: 'Desserts', image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiBmaWxsPSIjN2IzNDFjIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZjhhZCIvPjxyZWN0IHg9IjQwIiB5PSI4MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzdiMzQxYyIvPjxyZWN0IHg9IjQwIiB5PSI3MCIgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMCIgZmlsbD0iI2ZmYzE3MyIvPjxyZWN0IHg9IjQwIiB5PSIxNDAiIHdpZHRoPSIxMjAiIGhlaWdodD0iMTAiIGZpbGw9IiM4YjY1MTMiLz48Y2lyY2xlIGN4PSI4MCIgY3k9IjExMCIgcj0iNSIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjExMCIgcj0iNSIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjEyMCIgY3k9IjExMCIgcj0iNSIgZmlsbD0iI2ZmZmZmZiIvPjwvc3ZnPg==' },
         ];
         setProducts(sampleProducts);
         localStorage.setItem('products', JSON.stringify(sampleProducts));
@@ -30,6 +41,8 @@ export default function BillingDashboard() {
       }
       
       setTables(savedTables);
+      setBills(savedBills);
+      setCategories(savedCategories);
     }
   }, []);
 
@@ -46,13 +59,29 @@ export default function BillingDashboard() {
     }
   }, [tables]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bills', JSON.stringify(bills));
+    }
+  }, [bills]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('categories', JSON.stringify(categories));
+    }
+  }, [categories]);
+
   // Handle product image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setNewProduct({ ...newProduct, image: reader.result });
+        if (editingProduct) {
+          setEditingProduct({ ...editingProduct, image: reader.result });
+        } else {
+          setNewProduct({ ...newProduct, image: reader.result });
+        }
         setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
@@ -61,14 +90,14 @@ export default function BillingDashboard() {
 
   // Add a new product
   const addProduct = () => {
-    if (newProduct.name && newProduct.price && newProduct.image) {
+    if (newProduct.name && newProduct.price && newProduct.category && newProduct.image) {
       const updatedProducts = [...products, { 
         id: Date.now(), 
         ...newProduct, 
         price: parseFloat(newProduct.price) 
       }];
       setProducts(updatedProducts);
-      setNewProduct({ name: '', price: '', image: null });
+      setNewProduct({ name: '', price: '', category: '', image: null });
       setImagePreview(null);
       
       // Force update localStorage
@@ -83,10 +112,88 @@ export default function BillingDashboard() {
     }
   };
 
+  // Update a product
+  const updateProduct = () => {
+    if (editingProduct.name && editingProduct.price && editingProduct.category) {
+      const updatedProducts = products.map(p => 
+        p.id === editingProduct.id ? editingProduct : p
+      );
+      setProducts(updatedProducts);
+      setEditingProduct(null);
+      setImagePreview(null);
+      
+      // Force update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('products', JSON.stringify(updatedProducts));
+      }
+      
+      // Show success notification
+      alert('Product updated successfully!');
+    } else {
+      alert('Please fill all fields');
+    }
+  };
+
+  // Delete a product
+  const deleteProduct = (id) => {
+    if (confirm('Are you sure you want to delete this product?')) {
+      const updatedProducts = products.filter(p => p.id !== id);
+      setProducts(updatedProducts);
+      
+      // Force update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('products', JSON.stringify(updatedProducts));
+      }
+      
+      // Show success notification
+      alert('Product deleted successfully!');
+    }
+  };
+
+  // Add a new category
+  const addCategory = () => {
+    if (newCategory && !categories.includes(newCategory)) {
+      const updatedCategories = [...categories, newCategory];
+      setCategories(updatedCategories);
+      setNewCategory('');
+      
+      // Force update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('categories', JSON.stringify(updatedCategories));
+      }
+    }
+  };
+
+  // Delete a category
+  const deleteCategory = (category) => {
+    if (confirm(`Are you sure you want to delete the category "${category}"? Products in this category will be moved to "Uncategorized".`)) {
+      // Move products to Uncategorized
+      const updatedProducts = products.map(p => 
+        p.category === category ? { ...p, category: 'Uncategorized' } : p
+      );
+      setProducts(updatedProducts);
+      
+      // Remove category
+      const updatedCategories = categories.filter(c => c !== category);
+      setCategories(updatedCategories);
+      
+      // Force update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('products', JSON.stringify(updatedProducts));
+        localStorage.setItem('categories', JSON.stringify(updatedCategories));
+      }
+    }
+  };
+
   // Create a new table
   const addTable = () => {
     const tableId = Date.now();
-    const updatedTables = [...tables, { id: tableId, name: `Table ${tables.length + 1}`, items: [] }];
+    const updatedTables = [...tables, { 
+      id: tableId, 
+      name: `Table ${tables.length + 1}`, 
+      items: [],
+      status: 'available'
+    }];
     setTables(updatedTables);
     
     // Force update localStorage
@@ -107,12 +214,14 @@ export default function BillingDashboard() {
               item.id === product.id
                 ? { ...item, quantity: item.quantity + 1 }
                 : item
-            )
+            ),
+            status: 'occupied'
           };
         } else {
           return {
             ...table,
-            items: [...table.items, { ...product, quantity: 1 }]
+            items: [...table.items, { ...product, quantity: 1 }],
+            status: 'occupied'
           };
         }
       }
@@ -130,9 +239,11 @@ export default function BillingDashboard() {
   const removeFromTable = (tableId, productId) => {
     const updatedTables = tables.map(table => {
       if (table.id === tableId) {
+        const updatedItems = table.items.filter(item => item.id !== productId);
         return {
           ...table,
-          items: table.items.filter(item => item.id !== productId)
+          items: updatedItems,
+          status: updatedItems.length === 0 ? 'available' : 'occupied'
         };
       }
       return table;
@@ -179,7 +290,7 @@ export default function BillingDashboard() {
   const resetTable = (tableId) => {
     if (confirm('Are you sure you want to reset this table? All items will be removed.')) {
       const updatedTables = tables.map(table =>
-        table.id === tableId ? { ...table, items: [] } : table
+        table.id === tableId ? { ...table, items: [], status: 'available' } : table
       );
       setTables(updatedTables);
       
@@ -203,40 +314,72 @@ export default function BillingDashboard() {
     }
   };
 
+  // Generate bill and save it
+  const generateBill = (table) => {
+    const bill = {
+      id: Date.now(),
+      table: table.name,
+      items: table.items,
+      total: calculateTotal(table.items),
+      date: new Date().toLocaleString(),
+      status: 'paid'
+    };
+    
+    const updatedBills = [bill, ...bills];
+    setBills(updatedBills);
+    
+    // Reset the table
+    const updatedTables = tables.map(t =>
+      t.id === table.id ? { ...t, items: [], status: 'available' } : t
+    );
+    setTables(updatedTables);
+    
+    // Force update localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bills', JSON.stringify(updatedBills));
+      localStorage.setItem('tables', JSON.stringify(updatedTables));
+    }
+    
+    // Print the bill
+    printBill(bill);
+  };
+
   // Print bill
-  const printBill = (table) => {
+  const printBill = (bill) => {
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <html>
         <head>
-          <title>Bill for ${table.name}</title>
+          <title>Bill #${bill.id}</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            .header { text-align: center; margin-bottom: 20px; }
+            body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; }
+            .header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #ccc; padding-bottom: 10px; }
             .bill-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-            .bill-table th, .bill-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            .bill-table th, .bill-table td { border-bottom: 1px dashed #eee; padding: 8px; text-align: left; }
             .bill-table th { background-color: #f2f2f2; }
-            .total { font-weight: bold; font-size: 1.2em; text-align: right; }
-            .thank-you { text-align: center; margin-top: 30px; font-style: italic; }
+            .total { font-weight: bold; font-size: 1.2em; text-align: right; margin-top: 10px; border-top: 2px solid #333; padding-top: 10px; }
+            .thank-you { text-align: center; margin-top: 30px; font-style: italic; color: #666; }
+            .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #999; }
           </style>
         </head>
         <body>
           <div class="header">
-            <h1>Restaurant Bill</h1>
-            <h2>${table.name}</h2>
-            <p>Date: ${new Date().toLocaleDateString()}</p>
+            <h1>RESTAURANT BILL</h1>
+            <p>Date: ${bill.date}</p>
+            <p>Table: ${bill.table}</p>
+            <p>Bill #: ${bill.id}</p>
           </div>
           <table class="bill-table">
             <thead>
               <tr>
                 <th>Item</th>
-                <th>Quantity</th>
+                <th>Qty</th>
                 <th>Price</th>
                 <th>Total</th>
               </tr>
             </thead>
             <tbody>
-              ${table.items.map(item => `
+              ${bill.items.map(item => `
                 <tr>
                   <td>${item.name}</td>
                   <td>${item.quantity}</td>
@@ -246,8 +389,11 @@ export default function BillingDashboard() {
               `).join('')}
             </tbody>
           </table>
-          <div class="total">Total: $${calculateTotal(table.items)}</div>
-          <div class="thank-you">Thank you for your business!</div>
+          <div class="total">Total: $${bill.total}</div>
+          <div class="thank-you">Thank you for your visit!</div>
+          <div class="footer">
+            <p>Generated by POS System</p>
+          </div>
           <script>
             window.onload = function() {
               window.print();
@@ -260,17 +406,28 @@ export default function BillingDashboard() {
     printWindow.document.close();
   };
 
+  // Get today's bills
+  const getTodaysBills = () => {
+    const today = new Date().toLocaleDateString();
+    return bills.filter(bill => new Date(bill.date).toLocaleDateString() === today);
+  };
+
+  // Calculate today's revenue
+  const calculateTodaysRevenue = () => {
+    return getTodaysBills().reduce((total, bill) => total + parseFloat(bill.total), 0).toFixed(2);
+  };
+
   return (
     <div className="dashboard-container">
       <Head>
-        <title>Billing Dashboard</title>
-        <meta name="description" content="Product price management and billing system" />
+        <title>Modern POS Dashboard</title>
+        <meta name="description" content="Modern Point of Sale System with billing and inventory management" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>🍽️ Restaurant Billing System</h1>
+          <h1>💳 Modern POS System</h1>
           <div className="header-actions">
             <div className="stats">
               <div className="stat">
@@ -278,13 +435,23 @@ export default function BillingDashboard() {
                 <span className="stat-label">Products</span>
               </div>
               <div className="stat">
-                <span className="stat-value">{tables.length}</span>
-                <span className="stat-label">Active Tables</span>
+                <span className="stat-value">{tables.filter(t => t.status === 'occupied').length}</span>
+                <span className="stat-label">Occupied Tables</span>
+              </div>
+              <div className="stat">
+                <span className="stat-value">${calculateTodaysRevenue()}</span>
+                <span className="stat-label">Today's Revenue</span>
               </div>
             </div>
           </div>
         </div>
         <nav className="dashboard-nav">
+          <button 
+            className={activeTab === 'tables' ? 'nav-btn active' : 'nav-btn'} 
+            onClick={() => setActiveTab('tables')}
+          >
+            <span>🍽️</span> Tables
+          </button>
           <button 
             className={activeTab === 'products' ? 'nav-btn active' : 'nav-btn'} 
             onClick={() => setActiveTab('products')}
@@ -292,86 +459,15 @@ export default function BillingDashboard() {
             <span>📦</span> Products
           </button>
           <button 
-            className={activeTab === 'tables' ? 'nav-btn active' : 'nav-btn'} 
-            onClick={() => setActiveTab('tables')}
+            className={activeTab === 'bills' ? 'nav-btn active' : 'nav-btn'} 
+            onClick={() => setActiveTab('bills')}
           >
-            <span>🍽️</span> Tables
+            <span>🧾</span> Bills
           </button>
         </nav>
       </header>
 
       <main className="dashboard-main">
-        {activeTab === 'products' && (
-          <div className="products-section">
-            <div className="section-header">
-              <h2>Product Management</h2>
-              <p>Add and manage your menu items</p>
-            </div>
-            
-            <div className="dashboard-card">
-              <h3>Add New Product</h3>
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Product Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Margherita Pizza"
-                    value={newProduct.name}
-                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Price ($)</label>
-                  <input
-                    type="number"
-                    placeholder="0.00"
-                    value={newProduct.price}
-                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                    step="0.01"
-                  />
-                </div>
-                <div className="form-group full-width">
-                  <label>Product Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                  />
-                  {imagePreview && (
-                    <div className="image-preview">
-                      <img src={imagePreview} alt="Preview" />
-                    </div>
-                  )}
-                </div>
-              </div>
-              <button className="primary-btn" onClick={addProduct}>Add Product</button>
-            </div>
-
-            <div className="dashboard-card">
-              <h3>Menu Items ({products.length})</h3>
-              {products.length === 0 ? (
-                <div className="empty-state">
-                  <p>No products added yet. Add your first product above.</p>
-                </div>
-              ) : (
-                <div className="products-grid">
-                  {products.map(product => (
-                    <div key={product.id} className="product-card">
-                      <div className="product-image">
-                        <img src={product.image || '/api/placeholder/200/200'} alt={product.name} />
-                      </div>
-                      <div className="product-info">
-                        <h4>{product.name}</h4>
-                        <p className="product-price">${product.price.toFixed(2)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {activeTab === 'tables' && (
           <div className="tables-section">
             <div className="section-header">
@@ -397,19 +493,26 @@ export default function BillingDashboard() {
             ) : (
               <div className="tables-grid">
                 {tables.map(table => (
-                  <div key={table.id} className="dashboard-card table-card">
+                  <div key={table.id} className={`dashboard-card table-card ${table.status}`}>
                     <div className="table-header">
-                      <h3>{table.name}</h3>
+                      <h3>
+                        {table.name} 
+                        <span className={`status-badge ${table.status}`}>
+                          {table.status}
+                        </span>
+                      </h3>
                       <div className="table-actions">
                         <button 
-                          className="secondary-btn"
-                          onClick={() => printBill(table)}
+                          className="success-btn"
+                          onClick={() => generateBill(table)}
+                          disabled={table.items.length === 0}
                         >
-                          Print Bill
+                          Generate Bill
                         </button>
                         <button 
                           className="warning-btn"
                           onClick={() => resetTable(table.id)}
+                          disabled={table.items.length === 0}
                         >
                           Reset
                         </button>
@@ -456,25 +559,37 @@ export default function BillingDashboard() {
                         )}
                       </div>
 
-                      <div className="table-total">
-                        <div className="total-amount">
-                          <span>Total:</span>
-                          <span>${calculateTotal(table.items)}</span>
+                      {table.items.length > 0 && (
+                        <div className="table-total">
+                          <div className="total-amount">
+                            <span>Total:</span>
+                            <span>${calculateTotal(table.items)}</span>
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       <div className="add-products">
                         <h4>Add Products</h4>
-                        <div className="product-buttons">
-                          {products.map(product => (
-                            <button
-                              key={product.id}
-                              className="product-btn"
-                              onClick={() => addToTable(table.id, product)}
-                            >
-                              <span className="product-btn-name">{product.name}</span>
-                              <span className="product-btn-price">${product.price.toFixed(2)}</span>
-                            </button>
+                        <div className="categories-tabs">
+                          {categories.map(category => (
+                            <div key={category} className="category-section">
+                              <h5>{category}</h5>
+                              <div className="product-buttons">
+                                {products
+                                  .filter(p => p.category === category)
+                                  .map(product => (
+                                    <button
+                                      key={product.id}
+                                      className="product-btn"
+                                      onClick={() => addToTable(table.id, product)}
+                                    >
+                                      <span className="product-btn-name">{product.name}</span>
+                                      <span className="product-btn-price">${product.price.toFixed(2)}</span>
+                                    </button>
+                                  ))
+                                }
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -483,6 +598,220 @@ export default function BillingDashboard() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === 'products' && (
+          <div className="products-section">
+            <div className="section-header">
+              <h2>Product Management</h2>
+              <p>Add and manage your menu items and categories</p>
+            </div>
+            
+            <div className="dashboard-card">
+              <h3>{editingProduct ? 'Edit Product' : 'Add New Product'}</h3>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Product Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Margherita Pizza"
+                    value={editingProduct ? editingProduct.name : newProduct.name}
+                    onChange={(e) => editingProduct 
+                      ? setEditingProduct({ ...editingProduct, name: e.target.value })
+                      : setNewProduct({ ...newProduct, name: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Price ($)</label>
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    value={editingProduct ? editingProduct.price : newProduct.price}
+                    onChange={(e) => editingProduct 
+                      ? setEditingProduct({ ...editingProduct, price: e.target.value })
+                      : setNewProduct({ ...newProduct, price: e.target.value })
+                    }
+                    step="0.01"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    value={editingProduct ? editingProduct.category : newProduct.category}
+                    onChange={(e) => editingProduct 
+                      ? setEditingProduct({ ...editingProduct, category: e.target.value })
+                      : setNewProduct({ ...newProduct, category: e.target.value })
+                    }
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group full-width">
+                  <label>Product Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                  {imagePreview && (
+                    <div className="image-preview">
+                      <img src={imagePreview} alt="Preview" />
+                    </div>
+                  )}
+                </div>
+              </div>
+              {editingProduct ? (
+                <div className="form-actions">
+                  <button className="primary-btn" onClick={updateProduct}>Update Product</button>
+                  <button className="secondary-btn" onClick={() => { setEditingProduct(null); setImagePreview(null); }}>Cancel</button>
+                </div>
+              ) : (
+                <button className="primary-btn" onClick={addProduct}>Add Product</button>
+              )}
+            </div>
+
+            <div className="dashboard-card">
+              <h3>Categories</h3>
+              <div className="category-management">
+                <div className="add-category">
+                  <input
+                    type="text"
+                    placeholder="New category name"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                  />
+                  <button className="primary-btn" onClick={addCategory}>Add Category</button>
+                </div>
+                <div className="categories-list">
+                  {categories.map(category => (
+                    <div key={category} className="category-item">
+                      <span>{category}</span>
+                      <button 
+                        className="danger-btn"
+                        onClick={() => deleteCategory(category)}
+                        disabled={category === 'Uncategorized'}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="dashboard-card">
+              <h3>Menu Items ({products.length})</h3>
+              {products.length === 0 ? (
+                <div className="empty-state">
+                  <p>No products added yet. Add your first product above.</p>
+                </div>
+              ) : (
+                <div className="products-grid">
+                  {products.map(product => (
+                    <div key={product.id} className="product-card">
+                      <div className="product-image">
+                        <img src={product.image || '/api/placeholder/200/200'} alt={product.name} />
+                        <span className="product-category">{product.category}</span>
+                      </div>
+                      <div className="product-info">
+                        <h4>{product.name}</h4>
+                        <p className="product-price">${product.price.toFixed(2)}</p>
+                        <div className="product-actions">
+                          <button 
+                            className="secondary-btn"
+                            onClick={() => { setEditingProduct(product); setImagePreview(product.image); }}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="danger-btn"
+                            onClick={() => deleteProduct(product.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'bills' && (
+          <div className="bills-section">
+            <div className="section-header">
+              <h2>Billing History</h2>
+              <p>View and manage all generated bills</p>
+            </div>
+
+            <div className="dashboard-card">
+              <h3>Today's Bills (${calculateTodaysRevenue()})</h3>
+              {getTodaysBills().length === 0 ? (
+                <div className="empty-state">
+                  <p>No bills generated today</p>
+                </div>
+              ) : (
+                <div className="bills-list">
+                  {getTodaysBills().map(bill => (
+                    <div key={bill.id} className="bill-item">
+                      <div className="bill-info">
+                        <div className="bill-header">
+                          <h4>Bill #{bill.id}</h4>
+                          <span className="bill-date">{bill.date}</span>
+                        </div>
+                        <p>Table: {bill.table} | Items: {bill.items.reduce((total, item) => total + item.quantity, 0)} | Total: ${bill.total}</p>
+                      </div>
+                      <div className="bill-actions">
+                        <button 
+                          className="secondary-btn"
+                          onClick={() => printBill(bill)}
+                        >
+                          Reprint
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="dashboard-card">
+              <h3>All Bills</h3>
+              {bills.length === 0 ? (
+                <div className="empty-state">
+                  <p>No bills generated yet</p>
+                </div>
+              ) : (
+                <div className="bills-list">
+                  {bills.map(bill => (
+                    <div key={bill.id} className="bill-item">
+                      <div className="bill-info">
+                        <div className="bill-header">
+                          <h4>Bill #{bill.id}</h4>
+                          <span className="bill-date">{bill.date}</span>
+                        </div>
+                        <p>Table: {bill.table} | Items: {bill.items.reduce((total, item) => total + item.quantity, 0)} | Total: ${bill.total}</p>
+                      </div>
+                      <div className="bill-actions">
+                        <button 
+                          className="secondary-btn"
+                          onClick={() => printBill(bill)}
+                        >
+                          Reprint
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </main>
@@ -567,7 +896,7 @@ export default function BillingDashboard() {
         
         .dashboard-main {
           padding: 2rem;
-          max-width: 1400px;
+          max-width: 1600px;
           margin: 0 auto;
         }
         
@@ -625,11 +954,16 @@ export default function BillingDashboard() {
           color: #4a5568;
         }
         
-        .form-group input {
+        .form-group input, .form-group select {
           padding: 0.75rem;
           border: 1px solid #e2e8f0;
           border-radius: 6px;
           font-size: 1rem;
+        }
+        
+        .form-actions {
+          display: flex;
+          gap: 1rem;
         }
         
         .image-preview {
@@ -647,18 +981,23 @@ export default function BillingDashboard() {
         button {
           cursor: pointer;
           transition: all 0.3s ease;
+          border: none;
+        }
+        
+        button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
         
         .primary-btn {
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
-          border: none;
           padding: 0.75rem 1.5rem;
           border-radius: 6px;
           font-weight: 600;
         }
         
-        .primary-btn:hover {
+        .primary-btn:hover:not(:disabled) {
           transform: translateY(-2px);
           box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
@@ -666,7 +1005,14 @@ export default function BillingDashboard() {
         .secondary-btn {
           background: #48bb78;
           color: white;
-          border: none;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          font-size: 0.9rem;
+        }
+        
+        .success-btn {
+          background: #48bb78;
+          color: white;
           padding: 0.5rem 1rem;
           border-radius: 4px;
           font-size: 0.9rem;
@@ -675,7 +1021,6 @@ export default function BillingDashboard() {
         .warning-btn {
           background: #ed8936;
           color: white;
-          border: none;
           padding: 0.5rem 1rem;
           border-radius: 4px;
           font-size: 0.9rem;
@@ -684,50 +1029,9 @@ export default function BillingDashboard() {
         .danger-btn {
           background: #f56565;
           color: white;
-          border: none;
           padding: 0.5rem 1rem;
           border-radius: 4px;
           font-size: 0.9rem;
-        }
-        
-        .products-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: 1.5rem;
-        }
-        
-        .product-card {
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          overflow: hidden;
-          transition: transform 0.3s ease;
-        }
-        
-        .product-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .product-image img {
-          width: 100%;
-          height: 150px;
-          object-fit: cover;
-        }
-        
-        .product-info {
-          padding: 1rem;
-        }
-        
-        .product-info h4 {
-          margin: 0 0 0.5rem 0;
-          color: #2d3748;
-        }
-        
-        .product-price {
-          margin: 0;
-          color: #667eea;
-          font-weight: bold;
-          font-size: 1.1rem;
         }
         
         .empty-state {
@@ -743,7 +1047,7 @@ export default function BillingDashboard() {
         
         .tables-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
           gap: 1.5rem;
         }
         
@@ -751,6 +1055,14 @@ export default function BillingDashboard() {
           display: flex;
           flex-direction: column;
           height: 100%;
+        }
+        
+        .table-card.available {
+          border-left: 5px solid #48bb78;
+        }
+        
+        .table-card.occupied {
+          border-left: 5px solid #f56565;
         }
         
         .table-header {
@@ -765,6 +1077,26 @@ export default function BillingDashboard() {
         .table-header h3 {
           margin: 0;
           color: #2d3748;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        
+        .status-badge {
+          padding: 0.25rem 0.5rem;
+          border-radius: 20px;
+          font-size: 0.7rem;
+          font-weight: bold;
+        }
+        
+        .status-badge.available {
+          background: #c6f6d5;
+          color: #22543d;
+        }
+        
+        .status-badge.occupied {
+          background: #fed7d7;
+          color: #742a2a;
         }
         
         .table-actions {
@@ -832,7 +1164,6 @@ export default function BillingDashboard() {
         .item-controls button {
           background: #667eea;
           color: white;
-          border: none;
           width: 28px;
           height: 28px;
           border-radius: 50%;
@@ -876,15 +1207,32 @@ export default function BillingDashboard() {
           color: #4a5568;
         }
         
+        .categories-tabs {
+          max-height: 300px;
+          overflow-y: auto;
+        }
+        
+        .category-section {
+          margin-bottom: 1rem;
+        }
+        
+        .category-section h5 {
+          margin: 0 0 0.5rem 0;
+          color: #4a5568;
+          padding: 0.5rem;
+          background: #f7fafc;
+          border-radius: 4px;
+        }
+        
         .product-buttons {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
           gap: 0.5rem;
+          margin-bottom: 1rem;
         }
         
         .product-btn {
           background: #edf2f7;
-          border: none;
           padding: 0.5rem;
           border-radius: 6px;
           display: flex;
@@ -906,6 +1254,141 @@ export default function BillingDashboard() {
           font-size: 0.75rem;
           color: #667eea;
           font-weight: bold;
+        }
+        
+        .products-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 1.5rem;
+        }
+        
+        .product-card {
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          overflow: hidden;
+          transition: transform 0.3s ease;
+        }
+        
+        .product-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .product-image {
+          position: relative;
+        }
+        
+        .product-image img {
+          width: 100%;
+          height: 150px;
+          object-fit: cover;
+        }
+        
+        .product-category {
+          position: absolute;
+          top: 0.5rem;
+          right: 0.5rem;
+          background: rgba(102, 126, 234, 0.8);
+          color: white;
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+          font-size: 0.7rem;
+        }
+        
+        .product-info {
+          padding: 1rem;
+        }
+        
+        .product-info h4 {
+          margin: 0 0 0.5rem 0;
+          color: #2d3748;
+        }
+        
+        .product-price {
+          margin: 0 0 1rem 0;
+          color: #667eea;
+          font-weight: bold;
+          font-size: 1.1rem;
+        }
+        
+        .product-actions {
+          display: flex;
+          gap: 0.5rem;
+        }
+        
+        .category-management {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        
+        .add-category {
+          display: flex;
+          gap: 0.5rem;
+        }
+        
+        .add-category input {
+          flex: 1;
+          padding: 0.75rem;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          font-size: 1rem;
+        }
+        
+        .categories-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        
+        .category-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem;
+          background: #f7fafc;
+          border-radius: 6px;
+        }
+        
+        .bills-list {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        
+        .bill-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1rem;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+        }
+        
+        .bill-info {
+          flex: 1;
+        }
+        
+        .bill-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+        
+        .bill-header h4 {
+          margin: 0;
+          color: #2d3748;
+        }
+        
+        .bill-date {
+          color: #718096;
+          font-size: 0.9rem;
+        }
+        
+        .bill-actions {
+          display: flex;
+          gap: 0.5rem;
         }
       `}</style>
 
