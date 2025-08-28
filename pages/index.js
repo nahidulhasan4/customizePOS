@@ -300,7 +300,7 @@ export default function ModernPOSDashboard() {
       }
     }
   };
-  // here need to give spae 2 col for see active table stuts 
+  // here need to give spae 2 col for see active table stuts nad more fucntion
 
   // Delete a table
   const deleteTable = (tableId) => {
